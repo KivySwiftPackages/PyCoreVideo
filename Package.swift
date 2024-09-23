@@ -10,15 +10,16 @@ let package = Package(
 		.library(name: "PyCoreVideo", targets: ["PyCoreVideo"])
 	],
 	dependencies: [
-        .package(url: "https://github.com/PythonSwiftLink/KivySwiftLink", from: .init(311, 0, 0)),
-        .package(url: "https://github.com/PythonSwiftLink/SwiftonizePlugin", from: .init(0, 0, 0)),
+		
+        .package(url: "https://github.com/KivySwiftLink/PythonSwiftLink", from: .init(311, 0, 0)),
+        .package(url: "https://github.com/PythonSwiftLink/SwiftonizePlugin", from: .init(0, 1, 0)),
 	],
 	targets: [
 		.target(
 			name: "PyCoreVideo",
 			dependencies: [
-                .product(name: "PythonSwiftCore", package: "KivySwiftLink"),
-                .product(name: "PySwiftObject", package: "KivySwiftLink"),
+                .product(name: "SwiftonizeModules", package: "PythonSwiftLink"),
+                //.product(name: "PySwiftObject", package: "KivySwiftLink"),
 			],
 			plugins: [ .plugin(name: "Swiftonize", package: "SwiftonizePlugin") ]
 		),
