@@ -7,7 +7,7 @@ import Foundation
 import AVFoundation
 import PySwiftCore
 import PyUnpack
-import PyEncode
+import PySerializing
 import PythonCore
 //import PythonLib
 
@@ -29,7 +29,7 @@ fileprivate extension Int {
     }
 }
 
-extension CVPixelBuffer: PyBufferProtocol, PyConvertible {
+extension AVFoundation.CVPixelBuffer: PySwiftCore.PyBufferProtocol, PySerializing.PySerialize {
 
     
     public var pyPointer: PyPointer {
