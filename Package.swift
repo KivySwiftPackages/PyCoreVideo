@@ -4,7 +4,7 @@
 import PackageDescription
 
 let use_psk = true
-let local = true
+let local = false
 
 let pykit_package: Package.Dependency = if local {
     .package(path: "/Users/codebuilder/Documents/GitHub/PySwiftKit")
@@ -12,18 +12,6 @@ let pykit_package: Package.Dependency = if local {
     .package(url: "https://github.com/KivySwiftLink/PySwiftKit", from: .init(311, 0, 0))
 }
 
-
-let psw: Package.Dependency = if local {
-    .package(path: "/Volumes/CodeSSD/PythonSwiftGithub/PySwiftWrapper")
-} else {
-    .package(path: "/Volumes/CodeSSD/PythonSwiftGithub/PySwiftWrapper")
-}
-
-let pykit: Target.Dependency = if use_psk {
-    .product(name: "SwiftonizeModules", package: "PySwiftKit")
-} else {
-    .product(name: "SwiftonizeModules", package: "PythonSwiftLink")
-}
 
 let package = Package(
 	name: "PyCoreVideo",
@@ -41,7 +29,7 @@ let package = Package(
 		.target(
 			name: "PyCoreVideo",
 			dependencies: [
-                pykit,
+                .product(name: "SwiftonizeModules", package: "PySwiftKit")
 			]
 			//plugins: [ .plugin(name: "Swiftonize", package: "SwiftonizePlugin") ]
 		),
