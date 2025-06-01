@@ -5,45 +5,28 @@
 
 import Foundation
 import AVFoundation
-import PySwiftCore
+import PySwiftKit
 import PyUnpack
 import PySerializing
-import PythonCore
+import PySwiftWrapper
+import PySwiftObject
 //import PythonLib
 
-fileprivate extension UnsafeMutablePointer<Int> {
-    init(_ value: Int) {
-        self = .allocate(capacity: 1)
-        self.pointee = value
-    }
-}
 fileprivate extension UnsafeMutablePointer<CChar> {
     static let ubyte_format: Self = makeCString(from: "B")
 }
 
-fileprivate extension Int {
-    var stride: UnsafeMutablePointer<Int> {
-        let _stride = UnsafeMutablePointer<Int>.allocate(capacity: 1)
-        _stride.pointee = self
-        return _stride
-    }
-}
 
-extension AVFoundation.CVPixelBuffer: PySwiftCore.PyBufferProtocol, PySerializing.PySerialize {
-
-    
-    public var pyPointer: PyPointer {
-		Self.asPyPointer(self)
-    }
+@PyClassByExtension(bases: [.buffer])
+extension CVPixelBuffer: PySwiftKit.PyTypeBufferProtocol, PySerializing.PySerialize, PySwiftWrapper.PyClassProtocol {
 	
 	static var PyBuffer: PyBufferProcs = .init(
 		bf_getbuffer: { s, buffer, rw in
 			let cls: CVPixelBuffer = UnPackPyPointer(from: s)
-			let element_size = MemoryLayout<UInt8>.size
+			var element_size = MemoryLayout<UInt8>.size
 			
 			CVPixelBufferLockBaseAddress(cls, [])
-			
-			let size = CVPixelBufferGetDataSize(cls)
+			var size = CVPixelBufferGetDataSize(cls)
 			guard
 				let pixel_buf = CVPixelBufferGetBaseAddress(cls),
 				let buffer = buffer
@@ -59,8 +42,8 @@ extension AVFoundation.CVPixelBuffer: PySwiftCore.PyBufferProtocol, PySerializin
 			buffer.pointee.itemsize = element_size
 			buffer.pointee.format = .ubyte_format
 			buffer.pointee.ndim = 1
-			buffer.pointee.shape = size.stride
-			buffer.pointee.strides = element_size.stride
+            buffer.pointee.shape = .init(&size)
+            buffer.pointee.strides = .init(&element_size)
 			
 			buffer.pointee.suboffsets = nil
 			buffer.pointee.internal = nil
@@ -71,34 +54,13 @@ extension AVFoundation.CVPixelBuffer: PySwiftCore.PyBufferProtocol, PySerializin
 		},
 		bf_releasebuffer: nil
 	)
+    public static func buffer_procs() -> UnsafeMutablePointer<PyBufferProcs> {
+        .init(&PyBuffer)
+    }
     
-    public func __buffer__(s: PyPointer, buffer: UnsafeMutablePointer<Py_buffer>) -> Int32 {
-        let element_size = MemoryLayout<UInt8>.size
-        
-        CVPixelBufferLockBaseAddress(self, [])
-
-        let size = CVPixelBufferGetDataSize(self)
-        guard let pixel_buf = CVPixelBufferGetBaseAddress(self) else {
-            PyErr_SetString(PyExc_MemoryError, "CVPixelBuffer has no buffer")
-            return -1
-        }
-        buffer.pointee.obj = s
-        buffer.pointee.buf = pixel_buf
-        
-        buffer.pointee.len = size
-        buffer.pointee.readonly = 0
-        buffer.pointee.itemsize = element_size
-        buffer.pointee.format = .ubyte_format
-        buffer.pointee.ndim = 1
-        buffer.pointee.shape = size.stride
-        buffer.pointee.strides = element_size.stride
-        
-        buffer.pointee.suboffsets = nil
-        buffer.pointee.internal = nil
-        
-        CVPixelBufferUnlockBaseAddress(self, [])
-        
-        return 0
+    
+    public var pyPointer: PyPointer {
+        Self.asPyPointer(self)
     }
 }
 

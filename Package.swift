@@ -3,23 +3,26 @@
 
 import PackageDescription
 
-let kivy = true
+let use_psk = true
 let local = true
 
-let pykit_package: Package.Dependency = if kivy {
-    .package(url: "https://github.com/KivySwiftLink/PySwiftKit", from: .init(311, 0, 0))
+let pykit_package: Package.Dependency = if local {
+    .package(path: "/Users/codebuilder/Documents/GitHub/PySwiftKit")
 } else {
-    if local {
-        .package(path: "/Users/codebuilder/Documents/GitHub/PySwiftKit")
-    } else {
-        .package(url: "https://github.com/PythonSwiftLink/PySwiftKit", from: .init(311, 0, 0))
-    }
+    .package(url: "https://github.com/KivySwiftLink/PySwiftKit", from: .init(311, 0, 0))
 }
 
-let pykit: Target.Dependency = if kivy {
+
+let psw: Package.Dependency = if local {
+    .package(path: "/Volumes/CodeSSD/PythonSwiftGithub/PySwiftWrapper")
+} else {
+    .package(path: "/Volumes/CodeSSD/PythonSwiftGithub/PySwiftWrapper")
+}
+
+let pykit: Target.Dependency = if use_psk {
     .product(name: "SwiftonizeModules", package: "PySwiftKit")
 } else {
-    .product(name: "SwiftonizeModules", package: "PySwiftKit")
+    .product(name: "SwiftonizeModules", package: "PythonSwiftLink")
 }
 
 let package = Package(
@@ -31,16 +34,16 @@ let package = Package(
 	dependencies: [
 		
         pykit_package,
-        .package(url: "https://github.com/PythonSwiftLink/SwiftonizePlugin", from: .init(0, 1, 0)),
+        //psw
+       // .package(url: "https://github.com/PythonSwiftLink/SwiftonizePlugin", from: .init(0, 1, 0)),
 	],
 	targets: [
 		.target(
 			name: "PyCoreVideo",
 			dependencies: [
                 pykit,
-                //.product(name: "PySwiftObject", package: "KivySwiftLink"),
-			],
-			plugins: [ .plugin(name: "Swiftonize", package: "SwiftonizePlugin") ]
+			]
+			//plugins: [ .plugin(name: "Swiftonize", package: "SwiftonizePlugin") ]
 		),
 
 	]
