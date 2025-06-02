@@ -3,11 +3,10 @@
 
 import PackageDescription
 
-let use_psk = true
 let local = false
 
 let pykit_package: Package.Dependency = if local {
-    .package(path: "/Users/codebuilder/Documents/GitHub/PySwiftKit")
+    .package(path: "../PySwiftKit")
 } else {
     .package(url: "https://github.com/KivySwiftLink/PySwiftKit", from: .init(311, 0, 0))
 }
